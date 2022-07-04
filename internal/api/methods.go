@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -67,7 +68,10 @@ func (g *Gateway) AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reqModerate, err := http.NewRequestWithContext(r.Context(), http.MethodPost, "http://"+g.moderateAddress+urlCheckModerate, r.Body)
+	comment, _ := ioutil.ReadAll(r.Body)
+	r.Body.Close()
+
+	reqModerate, err := http.NewRequestWithContext(r.Context(), http.MethodPost, "http://"+g.moderateAddress+urlCheckModerate, bytes.NewBuffer(comment))
 	if err != nil {
 		g.writeResponseError(w, err, http.StatusInternalServerError)
 		return
@@ -79,7 +83,7 @@ func (g *Gateway) AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reqComment, err := http.NewRequestWithContext(r.Context(), http.MethodPost, "http://"+g.commentsAddress+urlComments+strconv.Itoa(newsID), r.Body)
+	reqComment, err := http.NewRequestWithContext(r.Context(), http.MethodPost, "http://"+g.commentsAddress+urlComments+strconv.Itoa(newsID), bytes.NewBuffer(comment))
 	if err != nil {
 		g.writeResponseError(w, err, http.StatusInternalServerError)
 		return
@@ -157,6 +161,7 @@ func (g *Gateway) fullNewsRequest(r *http.Request, id int, chanRespones chan<- i
 		chanRespones <- reqErr
 		return
 	}
+	defer resp.Body.Close()
 
 	var news NewsFullDetailed
 	if err := json.NewDecoder(resp.Body).Decode(&news); err != nil {
@@ -187,6 +192,7 @@ func (g *Gateway) commentRequest(r *http.Request, id int, chanRespones chan<- in
 		chanRespones <- reqErr
 		return
 	}
+	defer resp.Body.Close()
 
 	var comments []Comment
 	if err := json.NewDecoder(resp.Body).Decode(&comments); err != nil {
