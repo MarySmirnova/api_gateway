@@ -36,7 +36,6 @@ func NewGateway(cfg config.Server) *Gateway {
 	handler := mux.NewRouter()
 	handler.Use(g.reqIDMiddleware, g.logMiddleware)
 	handler.Name("get_news_list").Methods(http.MethodGet).Path("/news").HandlerFunc(g.NewsListHandler)
-	handler.Name("news_filter").Methods(http.MethodGet).Path("/news/filter").HandlerFunc(g.NewsFilterHandler)
 	handler.Name("get_full_news").Methods(http.MethodGet).Path("/news/{id}").HandlerFunc(g.FullNewsHandler)
 	handler.Name("add_commet").Methods(http.MethodPost).Path("/news/{id}/comment").HandlerFunc(g.AddCommentHandler)
 
@@ -129,7 +128,14 @@ func (g *Gateway) writeResponseError(w http.ResponseWriter, err error, code int)
 	_, _ = w.Write([]byte(err.Error()))
 }
 
-func (g *Gateway) setReqParameters(r *http.Request, filter string, page int) error {
+func (g *Gateway) setReqParameters(r *http.Request, filter string, page int) {
+	q := r.URL.Query()
+	q.Add("filter", filter)
+	q.Add("page", strconv.Itoa(page))
+	r.URL.RawQuery = q.Encode()
+}
+
+func (g *Gateway) setReqID(r *http.Request) error {
 	var reqID string
 
 	switch id := r.Context().Value(ContextReqIDKey).(type) {
@@ -140,11 +146,9 @@ func (g *Gateway) setReqParameters(r *http.Request, filter string, page int) err
 	default:
 		fmt.Printf("id: %v, type: %T", id, id)
 		return fmt.Errorf("неизветсный тип данных параметра request_id")
-	}
 
+	}
 	q := r.URL.Query()
-	q.Add("filter", filter)
-	q.Add("page", strconv.Itoa(page))
 	q.Add("request_id", reqID)
 	r.URL.RawQuery = q.Encode()
 
