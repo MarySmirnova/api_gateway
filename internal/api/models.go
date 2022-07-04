@@ -1,13 +1,12 @@
 package api
 
 type NewsFullDetailed struct {
-	ID           int       // номер записи
-	Title        string    // заголовок публикации
-	PubTime      int64     // время публикации
-	Link         string    // ссылка на источник
-	Content      string    // содержание публикации
-	Comments     []Comment // комментарии к публикации
-	CommentsPage Page      // объект пагинации для комментариев
+	ID       int       // номер записи
+	Title    string    // заголовок публикации
+	PubTime  int64     // время публикации
+	Link     string    // ссылка на источник
+	Content  string    // содержание публикации
+	Comments []Comment // комментарии к публикации
 }
 
 type NewsList struct {
