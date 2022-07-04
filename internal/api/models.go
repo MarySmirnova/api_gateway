@@ -1,12 +1,18 @@
 package api
 
 type NewsFullDetailed struct {
-	ID       int       // номер записи
-	Title    string    // заголовок публикации
-	PubTime  int64     // время публикации
-	Link     string    // ссылка на источник
-	Content  string    // содержание публикации
-	Comments []Comment // комментарии к публикации
+	ID           int       // номер записи
+	Title        string    // заголовок публикации
+	PubTime      int64     // время публикации
+	Link         string    // ссылка на источник
+	Content      string    // содержание публикации
+	Comments     []Comment // комментарии к публикации
+	CommentsPage Page      // объект пагинации для комментариев
+}
+
+type NewsList struct {
+	Posts []NewsShortDetailed // список новостей в сокращенном формате
+	Page  Page                // объект пагинации для новостей
 }
 
 type NewsShortDetailed struct {
@@ -14,7 +20,6 @@ type NewsShortDetailed struct {
 	Title   string // заголовок публикации
 	PubTime int64  // время публикации
 	Link    string // ссылка на источник
-	//  	ShortContent string // первый абзац публикации
 }
 
 type Comment struct {
@@ -23,4 +28,10 @@ type Comment struct {
 	NewsID   int    // id новости
 	Text     string // тело комментария
 	PubTime  int64  // время публикации
+}
+
+type Page struct {
+	TotalPages   int // общее количество страниц по запросу
+	NumberOfPage int // номер страницы
+	ItemsPerPage int // количество элементов на одной странице
 }
