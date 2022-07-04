@@ -158,8 +158,6 @@ func (g *Gateway) fullNewsRequest(r *http.Request, id int, chanRespones chan<- i
 		return
 	}
 
-	defer resp.Body.Close()
-
 	var news NewsFullDetailed
 	if err := json.NewDecoder(resp.Body).Decode(&news); err != nil {
 		chanRespones <- &ReqError{
@@ -189,8 +187,6 @@ func (g *Gateway) commentRequest(r *http.Request, id int, chanRespones chan<- in
 		chanRespones <- reqErr
 		return
 	}
-
-	defer resp.Body.Close()
 
 	var comments []Comment
 	if err := json.NewDecoder(resp.Body).Decode(&comments); err != nil {
